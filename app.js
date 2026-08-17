@@ -71,6 +71,93 @@ document.addEventListener("DOMContentLoaded", () => {
   // =========================
 
   addButtons.forEach((button) => {
+  button.addEventListener("click", async (event) => {
+    event.preventDefault();
+
+    const sessionText = localStorage.getItem("lap_chwile_session");
+
+    if (!sessionText) {
+      alert("Najpierw się zaloguj.");
+      return;
+    }
+
+    const session = JSON.parse(sessionText);
+    const user = session.user;
+
+    if (!user) {
+      alert("Sesja użytkownika jest nieprawidłowa.");
+      return;
+    }
+
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+
+    input.addEventListener("change", async () => {
+      if (!input.files || !input.files[0]) return;
+
+      const file = input.files[0];
+
+      if (!file.type.startsWith("image/")) {
+        alert("Wybierz plik graficzny.");
+        return;
+      }
+
+      const filePath =
+        user.id + "/" + Date.now() + "-" + file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+
+      const SUPABASE_URL =
+        "https://jcmwjmaywkmnjrciziix.supabase.co";
+
+      const SUPABASE_KEY =
+        "sb_publishable_djOS3r_IKhZ42gAXR5svKA_VAhqTrmt";
+
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL}/storage/v1/object/photos/${filePath}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: "Bearer " + session.access_token,
+              apikey: SUPABASE_KEY,
+              "Content-Type": file.type,
+              "x-upsert": "false"
+            },
+            body: file
+          }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          console.error(result);
+          alert(
+            "Nie udało się zapisać zdjęcia:\n" +
+            (result.message || result.error || "Błąd Storage")
+          );
+          return;
+        }
+
+        const gallery = document.querySelector(".gallery");
+
+        if (gallery) {
+          const img = document.createElement("img");
+          img.src = URL.createObjectURL(file);
+          img.alt = "Moja chwila";
+          gallery.prepend(img);
+        }
+
+        alert("🔥 Zdjęcie zostało zapisane w Supabase!");
+
+      } catch (error) {
+        console.error(error);
+        alert("Błąd połączenia z Supabase Storage.");
+      }
+    });
+
+    input.click();
+  });
+});
     button.addEventListener("click", (event) => {
       event.preventDefault();
 
