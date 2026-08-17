@@ -243,6 +243,9 @@ const uploadResponse = await fetch(
 
   async function loadSavedPhotos() {
     if (!accessToken) return;
+    const userId = JSON.parse(
+  atob(accessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
+).sub;
 
     try {
       const response = await fetch(
@@ -291,8 +294,7 @@ if (photoCount) {
       imagefiles.forEach((file) => {
         if (!file.name) return;
 const imageUrl =
-    `${SUPABASE_URL}/storage/v1/object/public/photos/${userId}/${encodeURIComponent(file.name)}`;
-        addImageToGallery(imageUrl);
+  `${SUPABASE_URL}/storage/v1/object/public/photos/${userId}/${encodeURIComponent(file.name)}`;
       });
 
     } catch (error) {
