@@ -291,11 +291,23 @@ if (photoCount) {
 
       if (!gallery) return;
 
-      imagefiles.forEach((file) => {
-        if (!file.name) return;
-const imageUrl =
-  `${SUPABASE_URL}/storage/v1/object/public/photos/${userId}/${file.name}`;
-      });
+      imageFiles.forEach((file) => {
+    if (!file.name) return;
+
+    const imageUrl =
+        `${SUPABASE_URL}/storage/v1/object/public/photos/${userId}/${file.name}`;
+
+    const image = document.createElement("img");
+    image.src = imageUrl;
+    image.alt = "Moja chwila";
+
+    image.style.width = "100%";
+    image.style.display = "block";
+    image.style.marginBottom = "20px";
+    image.style.borderRadius = "20px";
+
+    gallery.prepend(image);
+});
 
     } catch (error) {
       console.error("Błąd pobierania zdjęć:", error);
