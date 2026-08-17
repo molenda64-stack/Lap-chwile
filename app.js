@@ -180,8 +180,7 @@ const uploadResponse = await fetch(
 
             // Publiczny adres zdjęcia
             const imageUrl =
-              `${SUPABASE_URL}/storage/v1/object/public/photos/${encodeURIComponent(fileName)}`;
-
+  `${SUPABASE_URL}/storage/v1/object/public/photos/${userId}/${encodeURIComponent(fileName)}`;
             addImageToGallery(imageUrl);
 
             alert("Zdjęcie dodane! ✅");
