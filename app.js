@@ -70,7 +70,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         accessToken = data.access_token;
 
-        alert("Zalogowano ✅");
+localStorage.setItem(
+  "lap_chwile_session",
+  JSON.stringify({
+    access_token: data.access_token,
+    refresh_token: data.refresh_token
+  })
+);
+
+alert("Zalogowano ✅");
 
         // Po zalogowaniu aktywujemy dodawanie zdjęć
         enableAddButtons();
