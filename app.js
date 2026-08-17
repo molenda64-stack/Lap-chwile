@@ -8,6 +8,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const SUPABASE_KEY = "sb_publishable_djOS3r_IKhZ42gAXR5svKA_VAhqTrmt";
 
   let accessToken = null;
+    // Przywróć sesję po odświeżeniu
+  const savedSession = localStorage.getItem("lap_chwile_session");
+
+  if (savedSession) {
+    try {
+      const session = JSON.parse(savedSession);
+
+      if (session.access_token) {
+        accessToken = session.access_token;
+      }
+    } catch (error) {
+      console.error("Nieprawidłowa zapisana sesja:", error);
+      localStorage.removeItem("lap_chwile_session");
+    }
+  }
 
   // ==============================
   // PRZYCISK ZALOGUJ
@@ -207,4 +222,59 @@ document.addEventListener("DOMContentLoaded", () => {
 
   }
 
-});
+});  // ==============================
+  // POBIERANIE ZAPISANYCH ZDJĘĆ
+  // ==============================
+
+  async function loadSavedPhotos() {
+    if (!accessToken) return;
+
+    try {
+      const response = await fetch(
+        `${SUPABASE_URL}/storage/v1/object/list/photos`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "apikey": SUPABASE_KEY,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            prefix: "",
+            limit: 100,
+            offset: 0,
+            sortBy: {
+              column: "created_at",
+              order: "desc"
+            }
+          })
+        }
+      );
+
+      const files = await response.json();
+
+      if (!response.ok) {
+        console.error(files);
+        return;
+      }
+
+      const gallery = document.querySelector(".gallery");
+
+      if (!gallery) return;
+
+      files.forEach((file) => {
+        if (!file.name) return;
+
+        const imageUrl =
+          `${SUPABASE_URL}/storage/v1/object/public/photos/${encodeURIComponent(file.name)}`;
+
+        addImageToGallery(imageUrl);
+      });
+
+    } catch (error) {
+      console.error("Błąd pobierania zdjęć:", error);
+    }
+  }
+
+  // Pobierz zdjęcia po zalogowaniu
+  loadSavedPhotos();
