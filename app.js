@@ -67,8 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
           alert("Logowanie nieudane: " + (data.error_description || data.message || "Błąd"));
           return;
         }
-
-        accessToken = data.access_token;
+accessToken = data.access_token;
 
 localStorage.setItem(
   "lap_chwile_session",
@@ -80,7 +79,11 @@ localStorage.setItem(
 
 alert("Zalogowano ✅");
 
-        // Po zalogowaniu aktywujemy dodawanie zdjęć
+// Po zalogowaniu aktywujemy dodawanie zdjęć
+enableAddButtons();
+
+// Po zalogowaniu pobieramy zapisane zdjęcia
+loadSavedPhotos();
         enableAddButtons();
 
       } catch (error) {
