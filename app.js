@@ -145,11 +145,15 @@ loadSavedPhotos();
 
             alert("Wysyłam zdjęcie... 📸");
 
-            const fileName =
-              `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+            const userId = JSON.parse(
+  atob(accessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
+).sub;
 
-            const uploadResponse = await fetch(
-              `${SUPABASE_URL}/storage/v1/object/photos/${fileName}`,
+const fileName =
+  `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+
+const uploadResponse = await fetch(
+  `${SUPABASE_URL}/storage/v1/object/photos/${userId}/${fileName}`,
               {
                 method: "POST",
                 headers: {
