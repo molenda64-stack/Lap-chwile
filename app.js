@@ -312,6 +312,4 @@ if (photoCount) {
       console.error("Błąd pobierania zdjęć:", error);
     }
   }
-
-  // Pobierz zdjęcia po zalogowaniu
-  loadSavedPhotos();
+ 
