@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!password) return;
 
     const SUPABASE_URL = "https://jcmwjmaywkmnjrciziix.supabase.co";
-    const SUPABASE_KEY const SUPABASE_KEY = "sb_publishable_...";djOS3r_IKhZ42gAXR5svKA_VAhqTrmt";
+    const SUPABASE_KEY = "sb_publishable_...";djOS3r_IKhZ42gAXR5svKA_VAhqTrmt";
 
     try {
       const response = await fetch(
