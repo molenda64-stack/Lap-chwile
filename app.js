@@ -294,7 +294,7 @@ if (photoCount) {
       imagefiles.forEach((file) => {
         if (!file.name) return;
 const imageUrl =
-  `${SUPABASE_URL}/storage/v1/object/public/photos/${userId}/${encodeURIComponent(file.name)}`;
+  `${SUPABASE_URL}/storage/v1/object/public/photos/${userId}/${file.name}`;
       });
 
     } catch (error) {
