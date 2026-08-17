@@ -62,20 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         const data = await response.json();
-        const photoCount = document.querySelector("#photoCount");
-
-if const photoCount = document.querySelector("#photoCount");
-
-if (photoCount) {
-  const imageFiles = Array.isArray(files)
-    ? files.filter(file => file.name && !file.name.endsWith("/"))
-    : [];
-
-  photoCount.textContent =
-    imageFiles.length === 1
-      ? "1 zapisana chwila"
-      : `${imageFiles.length} zapisanych chwil`;
-}
 
         if (!response.ok) {
           alert("Logowanie nieudane: " + (data.error_description || data.message || "Błąd"));
