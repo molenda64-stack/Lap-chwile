@@ -255,7 +255,7 @@ const uploadResponse = await fetch(
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            prefix: "",
+            prefix: `${userId}/`,
             limit: 100,
             offset: 0,
             sortBy: {
@@ -290,10 +290,8 @@ if (photoCount) {
 
       imagefiles.forEach((file) => {
         if (!file.name) return;
-
-        const imageUrl =
-          `${SUPABASE_URL}/storage/v1/object/public/photos/${encodeURIComponent(file.name)}`;
-
+const imageUrl =
+    `${SUPABASE_URL}/storage/v1/object/public/photos/${userId}/${encodeURIComponent(file.name)}`;
         addImageToGallery(imageUrl);
       });
 
