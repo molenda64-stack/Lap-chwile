@@ -78,7 +78,7 @@ localStorage.setItem(
 );
 
 alert("Zalogowano ✅");
-
+loadSavedPhotos(); 
 // Po zalogowaniu aktywujemy dodawanie zdjęć
 enableAddButtons();
 
