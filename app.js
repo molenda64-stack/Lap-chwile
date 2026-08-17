@@ -257,12 +257,23 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error(files);
         return;
       }
+const imageFiles = Array.isArray(files)
+    ? files.filter(file => file?.name && !file.name.endsWith("/"))
+    : [];
 
+const photoCount = document.querySelector("#photoCount");
+
+if (photoCount) {
+    photoCount.textContent =
+        imageFiles.length === 1
+            ? "1 zapisana chwila"
+            : `${imageFiles.length} zapisanych chwil`;
+}
       const gallery = document.querySelector(".gallery");
 
       if (!gallery) return;
 
-      files.forEach((file) => {
+      imagefiles.forEach((file) => {
         if (!file.name) return;
 
         const imageUrl =
