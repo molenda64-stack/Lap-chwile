@@ -64,11 +64,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await response.json();
         const photoCount = document.querySelector("#photoCount");
 
-if (photoCount && Array.isArray(files)) {
+if const photoCount = document.querySelector("#photoCount");
+
+if (photoCount) {
+  const imageFiles = Array.isArray(files)
+    ? files.filter(file => file.name && !file.name.endsWith("/"))
+    : [];
+
   photoCount.textContent =
-    files.length === 1
+    imageFiles.length === 1
       ? "1 zapisana chwila"
-      : `${files.length} zapisanych chwil`;
+      : `${imageFiles.length} zapisanych chwil`;
 }
 
         if (!response.ok) {
