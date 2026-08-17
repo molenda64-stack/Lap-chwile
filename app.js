@@ -1,12 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Łap Chwile — app.js działa");
+  console.log("Łap Chwile — aplikacja działa");
 
   const buttons = document.querySelectorAll("button, a");
 
   buttons.forEach((button) => {
     const text = button.textContent.trim().toLowerCase();
 
-    // Logowanie
+    // LOGOWANIE
     if (text.includes("zaloguj")) {
       button.addEventListener("click", (e) => {
         e.preventDefault();
@@ -25,26 +25,32 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Dodawanie chwili
-    if (text.includes("dodaj chwilę") || text.includes("dodaj zdjęcie")) {
+    // DODAWANIE CHWILI / ZDJĘCIA
+    if (
+      text.includes("dodaj chwilę") ||
+      text.includes("dodaj chwile") ||
+      text.includes("dodaj zdjęcie") ||
+      text.includes("dodaj zdjecie")
+    ) {
       button.addEventListener("click", (e) => {
         e.preventDefault();
 
         const input = document.createElement("input");
         input.type = "file";
         input.accept = "image/*";
-        input.click();
 
         input.addEventListener("change", () => {
           if (input.files && input.files.length > 0) {
             alert("Wybrano zdjęcie: " + input.files[0].name);
           }
         });
+
+        input.click();
       });
     }
 
-    // Zobacz chwile
-    if (text.includes("zobacz chwile")) {
+    // ZOBACZ CHWILE
+    if (text.includes("zobacz chwile") || text.includes("zobacz chwilę")) {
       button.addEventListener("click", (e) => {
         e.preventDefault();
 
