@@ -7,123 +7,44 @@
   <meta name="description" content="Łap Chwilę — zachowuj swoje najpiękniejsze wspomnienia.">
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background: #f7f8f5;
-      color: #222;
-    }
-
-    header {
-      background: white;
-      padding: 18px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #eee;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    .logo {
-      font-size: 24px;
-      font-weight: 700;
-    }
-
-    .login {
-      background: #222;
-      color: white;
-      border: none;
-      padding: 11px 18px;
-      border-radius: 25px;
-      font-size: 15px;
-      cursor: pointer;
-    }
-
-    .hero {
-      text-align: center;
-      padding: 70px 20px 50px;
-    }
-
-    .hero h1 {
-      font-size: 44px;
-      margin-bottom: 15px;
-    }
-
-    .hero p {
-      font-size: 19px;
-      color: #666;
-      max-width: 600px;
-      margin: auto;
-      line-height: 1.6;
-    }
-
-    .add {
-      margin-top: 30px;
-      background: #79b85a;
-      color: white;
-      border: none;
-      padding: 14px 25px;
-      border-radius: 30px;
-      font-size: 17px;
-      cursor: pointer;
-    }
-
-    .gallery {
-      max-width: 1000px;
-      margin: 0 auto 60px;
-      padding: 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 18px;
-    }
-
-    .gallery img {
-      width: 100%;
-      height: 240px;
-      object-fit: cover;
-      border-radius: 18px;
-      box-shadow: 0 5px 20px rgba(0,0,0,.08);
-    }
-
-    footer {
-      text-align: center;
-      padding: 30px;
-      color: #888;
-      background: white;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f7f8f5; color: #222; }
+    header { background: white; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+    .logo { font-size: 24px; font-weight: 700; }
+    .login { background: #222; color: white; border: none; padding: 11px 18px; border-radius: 25px; font-size: 15px; cursor: pointer; }
+    .hero { text-align: center; padding: 70px 20px 50px; }
+    .hero h1 { font-size: 44px; margin-bottom: 15px; }
+    .hero p { font-size: 19px; color: #666; max-width: 600px; margin: auto; line-height: 1.6; }
+    .add { margin-top: 30px; background: #79b85a; color: white; border: none; padding: 14px 25px; border-radius: 30px; font-size: 17px; cursor: pointer; }
+    .gallery { max-width: 1000px; margin: 0 auto 60px; padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+    .gallery img { width: 100%; height: 240px; object-fit: cover; border-radius: 18px; box-shadow: 0 5px 20px rgba(0,0,0,.08); }
+    .profile { max-width: 1000px; margin: 28px auto 0; padding: 0 20px; display: flex; align-items: center; gap: 14px; }
+    .profile-avatar { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: #79b85a; color: white; font-size: 24px; }
+    .profile-info h2 { font-size: 20px; }
+    .profile-info p { margin-top: 3px; color: #777; font-size: 14px; }
+    footer { text-align: center; padding: 30px; color: #888; background: white; }
+    @media (max-width: 600px) { .hero { padding-top: 45px; } .hero h1 { font-size: 38px; } .gallery { grid-template-columns: 1fr; padding: 20px 16px; } .gallery img { height: auto; max-height: 520px; } }
   </style>
 </head>
 
 <body>
-
   <header>
     <div class="logo">🌿 Łap Chwilę</div>
     <button class="login">Zaloguj</button>
   </header>
 
-  <main> 
-<section class="profile">
-  <div class="profile-avatar">👤</div>
-  <div class="profile-info">
-    <h2>Moje chwile</h2>
-    <p id="photoCount">0 zapisanych chwil</p>
-  </div>
-</section>
+  <main>
+    <section class="profile">
+      <div class="profile-avatar">👤</div>
+      <div class="profile-info">
+        <h2>Moje chwile</h2>
+        <p id="photoCount">0 zapisanych chwil</p>
+      </div>
+    </section>
+
     <section class="hero">
       <h1>Łap chwilę.</h1>
-
-      <p>
-        Zachowuj zdjęcia, wspomnienia i wyjątkowe momenty,
-        do których chcesz wracać.
-      </p>
-
+      <p>Zachowuj zdjęcia, wspomnienia i wyjątkowe momenty, do których chcesz wracać.</p>
       <button class="add">＋ Dodaj chwilę</button>
     </section>
 
@@ -136,16 +57,11 @@
       <img src="travel-06.jpg" alt="Wspomnienie">
       <img src="travel-07.jpg" alt="Wspomnienie">
     </section>
+  </main>
 
-  </main> 
+  <footer>© 2026 Łap Chwilę</footer>
 
-  <footer>
-    © 2026 Łap Chwilę
-  </footer> 
-<script>
-alert("INDEX DZIAŁA");
-</script>
-  <script src="./app.js?v=2"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./app.js?v=3"></script>
 </body>
 </html>
