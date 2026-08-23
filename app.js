@@ -1,315 +1,191 @@
 document.addEventListener("DOMContentLoaded", () => {
-
-  // ==============================
-  // SUPABASE
-  // ==============================
-
   const SUPABASE_URL = "https://jcmwjmaywkmnjrciziix.supabase.co";
   const SUPABASE_KEY = "sb_publishable_djOS3r_IKhZ42gAXR5svKA_VAhqTrmt";
+  const BUCKET = "photos";
 
-  let accessToken = null;
-    // Przywróć sesję po odświeżeniu
-  const savedSession = localStorage.getItem("lap_chwile_session");
-
-  if (savedSession) {
-    try {
-      const session = JSON.parse(savedSession);
-
-      if (session.access_token) {
-        accessToken = session.access_token;
-      }
-    } catch (error) {
-      console.error("Nieprawidłowa zapisana sesja:", error);
-      localStorage.removeItem("lap_chwile_session");
-    }
+  if (!window.supabase?.createClient) {
+    console.error("Supabase JS nie jest załadowany.");
+    return;
   }
 
-  // ==============================
-  // PRZYCISK ZALOGUJ
-  // ==============================
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  });
 
-  const loginButtons = document.querySelectorAll(
-    'button.login, button[class*="login"]'
-  );
+  const loginButtons = document.querySelectorAll('button.login, button[class*="login"]');
+  const addButtons = document.querySelectorAll('button.add, button[class*="add"]');
+  const gallery = document.querySelector(".gallery");
+  const photoCount = document.querySelector("#photoCount");
+
+  const setCount = (count) => {
+    if (photoCount) {
+      photoCount.textContent = count === 1 ? "1 zapisana chwila" : `${count} zapisanych chwil`;
+    }
+  };
+
+  const clearSavedPhotos = () => {
+    if (!gallery) return;
+    gallery.querySelectorAll('[data-saved-photo="true"]').forEach((el) => el.remove());
+  };
+
+  const updateAuthUI = (user) => {
+    loginButtons.forEach((button) => {
+      button.textContent = user ? "Wyloguj" : "Zaloguj";
+      button.dataset.authenticated = user ? "true" : "false";
+    });
+  };
+
+  const addImageToGallery = (url, id = "") => {
+    if (!gallery) return;
+    const image = document.createElement("img");
+    image.src = url;
+    image.alt = "Moja chwila";
+    image.loading = "lazy";
+    image.dataset.savedPhoto = "true";
+    image.dataset.photoId = id;
+    gallery.prepend(image);
+  };
+
+  async function loadSavedPhotos() {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      clearSavedPhotos();
+      setCount(0);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("photos")
+      .select("id,image_path,caption,created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Błąd pobierania zdjęć z bazy:", error);
+      return;
+    }
+
+    clearSavedPhotos();
+
+    data.forEach((photo) => {
+      const { data: publicData } = supabase.storage.from(BUCKET).getPublicUrl(photo.image_path);
+      addImageToGallery(publicData.publicUrl, photo.id);
+    });
+
+    setCount(data.length);
+  }
+
+  async function uploadPhoto(file) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      alert("Wybierz zdjęcie.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Zdjęcie jest za duże. Maksymalny rozmiar to 10 MB.");
+      return;
+    }
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      alert("Najpierw się zaloguj.");
+      return;
+    }
+
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const filePath = `${user.id}/${Date.now()}-${crypto.randomUUID()}-${safeName}`;
+
+    const { error: uploadError } = await supabase.storage.from(BUCKET).upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: file.type
+    });
+
+    if (uploadError) {
+      console.error("Błąd Storage:", uploadError);
+      alert("Nie udało się dodać zdjęcia: " + uploadError.message);
+      return;
+    }
+
+    const { error: dbError } = await supabase.from("photos").insert({
+      user_id: user.id,
+      image_path: filePath,
+      caption: ""
+    });
+
+    if (dbError) {
+      console.error("Błąd zapisu rekordu photos:", dbError);
+      await supabase.storage.from(BUCKET).remove([filePath]);
+      alert("Zdjęcie wysłane, ale nie udało się zapisać go w bazie.");
+      return;
+    }
+
+    await loadSavedPhotos();
+    alert("Zdjęcie dodane i zapisane. ✅");
+  }
+
+  addButtons.forEach((button) => {
+    button.addEventListener("click", async (event) => {
+      event.preventDefault();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        alert("Najpierw się zaloguj.");
+        return;
+      }
+
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.onchange = () => uploadPhoto(input.files?.[0]);
+      input.click();
+    });
+  });
 
   loginButtons.forEach((button) => {
-
     button.addEventListener("click", async (event) => {
-
       event.preventDefault();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session) {
+        await supabase.auth.signOut();
+        return;
+      }
 
       const email = prompt("Podaj adres e-mail:");
       if (!email) return;
-
       const password = prompt("Podaj hasło:");
       if (!password) return;
 
-      try {
-
-        const response = await fetch(
-          `${SUPABASE_URL}/auth/v1/token?grant_type=password`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "apikey": SUPABASE_KEY
-            },
-            body: JSON.stringify({
-              email: email,
-              password: password
-            })
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          alert("Logowanie nieudane: " + (data.error_description || data.message || "Błąd"));
-          return;
-        }
-accessToken = data.access_token;
-
-localStorage.setItem(
-  "lap_chwile_session",
-  JSON.stringify({
-    access_token: data.access_token,
-    refresh_token: data.refresh_token
-  })
-);
-
-alert("Zalogowano ✅");
-loadSavedPhotos(); 
-// Po zalogowaniu aktywujemy dodawanie zdjęć
-enableAddButtons();
-
-// Po zalogowaniu pobieramy zapisane zdjęcia
-loadSavedPhotos();
-        enableAddButtons();
-
-      } catch (error) {
-
-        console.error(error);
-        alert("Błąd połączenia z Supabase.");
-
-      }
-
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) alert("Logowanie nieudane: " + error.message);
     });
-
   });
 
-
-  // ==============================
-  // DODAWANIE CHWILI / ZDJĘCIA
-  // ==============================
-
-  function enableAddButtons() {
-
-    const addButtons = document.querySelectorAll(
-      'button.add, button[class*="add"]'
-    );
-
-    addButtons.forEach((button) => {
-
-      button.onclick = async (event) => {
-
-        event.preventDefault();
-
-        if (!accessToken) {
-          alert("Najpierw się zaloguj.");
-          return;
-        }
-
-        const input = document.createElement("input");
-
-        input.type = "file";
-        input.accept = "image/*";
-
-        input.onchange = async () => {
-
-          const file = input.files[0];
-
-          if (!file) return;
-
-          if (!file.type.startsWith("image/")) {
-            alert("Wybierz zdjęcie.");
-            return;
-          }
-
-          // Maksymalnie 10 MB
-          if (file.size > 10 * 1024 * 1024) {
-            alert("Zdjęcie jest za duże. Maksymalny rozmiar to 10 MB.");
-            return;
-          }
-
-          try {
-
-            alert("Wysyłam zdjęcie... 📸");
-
-            const userId = JSON.parse(
-  atob(accessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
-).sub;
-
-const fileName =
-  `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-
-const uploadResponse = await fetch(
-  `${SUPABASE_URL}/storage/v1/object/photos/${userId}/${fileName}`,
-              {
-                method: "POST",
-                headers: {
-                  "Authorization": `Bearer ${accessToken}`,
-                  "apikey": SUPABASE_KEY,
-                  "Content-Type": file.type
-                },
-                body: file
-              }
-            );
-
-            const uploadData = await uploadResponse.json();
-
-            if (!uploadResponse.ok) {
-              console.error(uploadData);
-
-              alert(
-                "Nie udało się dodać zdjęcia: " +
-                (uploadData.message || "błąd Storage")
-              );
-
-              return;
-            }
-
-            // Publiczny adres zdjęcia
-            const imageUrl =
-  `${SUPABASE_URL}/storage/v1/object/public/photos/${userId}/${encodeURIComponent(fileName)}`;
-            addImageToGallery(imageUrl);
-
-            alert("Zdjęcie dodane! ✅");
-
-          } catch (error) {
-
-            console.error(error);
-
-            alert("Wystąpił błąd podczas wysyłania zdjęcia.");
-
-          }
-
-        };
-
-        input.click();
-
-      };
-
-    });
-
-  }
-
-
-  // ==============================
-  // POKAŻ NOWE ZDJĘCIE
-  // ==============================
-
-  function addImageToGallery(imageUrl) {
-
-    let gallery = document.querySelector(".gallery");
-
-    if (!gallery) {
-
-      gallery = document.createElement("section");
-
-      gallery.className = "gallery";
-
-      document.querySelector("main")?.appendChild(gallery);
-
+  // Przywrócenie sesji po uruchomieniu/odświeżeniu strony.
+  (async () => {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) {
+      console.error("Błąd przywracania sesji:", error);
+      updateAuthUI(null);
+      return;
     }
+    updateAuthUI(session?.user ?? null);
+    if (session?.user) await loadSavedPhotos();
+  })();
 
-    const image = document.createElement("img");
-
-    image.src = imageUrl;
-    image.alt = "Moja chwila";
-
-    image.style.width = "100%";
-    image.style.display = "block";
-    image.style.marginBottom = "20px";
-    image.style.borderRadius = "20px";
-
-    gallery.prepend(image);
-
-  }
-
-});  // ==============================
-  // POBIERANIE ZAPISANYCH ZDJĘĆ
-  // ==============================
-
-  async function loadSavedPhotos() {
-    if (!accessToken) return;
-    const userId = JSON.parse(
-  atob(accessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
-).sub;
-
-    try {
-      const response = await fetch(
-        `${SUPABASE_URL}/storage/v1/object/list/photos`,
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${accessToken}`,
-            "apikey": SUPABASE_KEY,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            prefix: `${userId}/`,
-            limit: 100,
-            offset: 0,
-            sortBy: {
-              column: "created_at",
-              order: "desc"
-            }
-          })
-        }
-      );
-
-      const files = await response.json();
-
-      if (!response.ok) {
-        console.error(files);
-        return;
-      }
-const imageFiles = Array.isArray(files)
-    ? files.filter(file => file?.name && !file.name.endsWith("/"))
-    : [];
-
-const photoCount = document.querySelector("#photoCount");
-
-if (photoCount) {
-    photoCount.textContent =
-        imageFiles.length === 1
-            ? "1 zapisana chwila"
-            : `${imageFiles.length} zapisanych chwil`;
-}
-      const gallery = document.querySelector(".gallery");
-
-      if (!gallery) return;
-
-      imageFiles.forEach((file) => {
-    if (!file.name) return;
-
-    const imageUrl =
-        `${SUPABASE_URL}/storage/v1/object/public/photos/${userId}/${file.name}`;
-
-    const image = document.createElement("img");
-    image.src = imageUrl;
-    image.alt = "Moja chwila";
-
-    image.style.width = "100%";
-    image.style.display = "block";
-    image.style.marginBottom = "20px";
-    image.style.borderRadius = "20px";
-
-    gallery.prepend(image);
+  // Reakcja na logowanie, wylogowanie i odświeżenie tokenu.
+  supabase.auth.onAuthStateChange((event, session) => {
+    console.log("Auth event:", event);
+    updateAuthUI(session?.user ?? null);
+    if (session?.user) {
+      setTimeout(loadSavedPhotos, 0);
+    } else {
+      clearSavedPhotos();
+      setCount(0);
+    }
+  });
 });
-
-    } catch (error) {
-      console.error("Błąd pobierania zdjęć:", error);
-    }
-  }
- 
