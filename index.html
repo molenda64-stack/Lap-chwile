@@ -23,6 +23,7 @@
     .profile-info h2 { font-size: 20px; }
     .profile-info p { margin-top: 3px; color: #777; font-size: 14px; }
     footer { text-align: center; padding: 30px; color: #888; background: white; }
+    .empty-gallery { grid-column: 1 / -1; text-align: center; padding: 35px 20px; color: #777; }
     @media (max-width: 600px) { .hero { padding-top: 45px; } .hero h1 { font-size: 38px; } .gallery { grid-template-columns: 1fr; padding: 20px 16px; } .gallery img { height: auto; max-height: 520px; } }
   </style>
 </head>
@@ -48,20 +49,12 @@
       <button class="add">＋ Dodaj chwilę</button>
     </section>
 
-    <section class="gallery">
-      <img src="travel-01.jpg" alt="Wspomnienie">
-      <img src="travel-02.jpg" alt="Wspomnienie">
-      <img src="travel-03.jpg" alt="Wspomnienie">
-      <img src="travel-04.jpg" alt="Wspomnienie">
-      <img src="travel-05.jpg" alt="Wspomnienie">
-      <img src="travel-06.jpg" alt="Wspomnienie">
-      <img src="travel-07.jpg" alt="Wspomnienie">
-    </section>
+    <section class="gallery" aria-label="Moje zapisane chwile"></section>
   </main>
 
   <footer>© 2026 Łap Chwilę</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=3"></script>
+  <script src="./app.js?v=4"></script>
 </body>
 </html>
