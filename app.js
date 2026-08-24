@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const SUPABASE_URL = "https://jcmwjmaywkmnjrciziix.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjbXdqbWF5d2ttbmpyY2l6aWl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4ODI4MjQsImV4cCI6MjEwMjQ1ODgyNH0.RtBREQD2r-shvaAJ9tSPR5ypYdIe9pqhwh4QJ3n-ruA";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjbXdqbWF5d2ttbmpyY2l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4ODI4MjQsImV4cCI6MjEwMjQ1ODgyNH0.RtBREQD2r-shvaAJ9tSPR5ypYdIe9pqhwh4QJ3n-ruA";
   const BUCKET = "photos";
   const supabase = window.supabase?.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: "lap-chwile-auth-v2" } }) : null;
 
@@ -46,7 +46,15 @@ document.addEventListener("DOMContentLoaded", () => {
   function addImageToGallery(url, id, imagePath) {
     if (!gallery || gallery.querySelector(`[data-photo-id="${CSS.escape(String(id))}"]`)) return;
     const card = document.createElement("article"); card.className = "photo-card"; card.dataset.savedPhoto = "true"; card.dataset.photoId = id;
-    const image = document.createElement("img"); image.src = url; image.alt = "Moja chwila"; image.loading = "lazy"; image.addEventListener("click", () => openViewer(url));
+    const image = document.createElement("img"); image.src = url; image.alt = "Moja chwila"; image.loading = "lazy";
+    image.addEventListener("click", () => openViewer(url));
+    image.addEventListener("error", async () => {
+      console.warn("Uszkodzone lub brakujące zdjęcie:", imagePath);
+      card.remove();
+      setCount(gallery?.querySelectorAll('[data-saved-photo="true"]').length || 0);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) await supabase.from("photos").delete().eq("id", id).eq("user_id", user.id);
+    }, { once: true });
     const button = document.createElement("button"); button.className = "delete-photo"; button.type = "button"; button.title = "Usuń zdjęcie"; button.setAttribute("aria-label", "Usuń zdjęcie"); button.textContent = "🗑"; button.addEventListener("click", () => deletePhoto(id, imagePath, card));
     card.append(image, button); gallery.append(card);
   }
