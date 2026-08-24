@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const SUPABASE_URL = "https://jcmwjmaywkmnjrciziix.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_djOS3_r_IKhZ42gAXR5svKA_VAhqTrmt";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjbXdqbWF5d2ttbmpyY2l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4ODI4MjQsImV4cCI6MjEwMjQ1ODgyNH0.RtBREQD2r-shvaAJ9tSPR5ypYdIe9pqhwh4QJ3n-ruA";
   const BUCKET = "photos";
   if (!window.supabase?.createClient) return;
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } finally { uploading = false; }
   }
   addButtons.forEach((b) => b.addEventListener("click", async (e) => { e.preventDefault(); if (uploading) return; const { data: { user } } = await supabase.auth.getUser(); if (!user) return openAuth("login"); const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.multiple = true; input.onchange = () => { if (input.files?.length) uploadPhotos(input.files); }; input.click(); }));
-  loginButtons.forEach((b) => b.addEventListener("click", async (e) => { e.preventDefault(); const { data: { session } } = await supabase.auth.getSession(); if (session) await supabase.auth.signOut(); else openAuth("login"); }));
+  loginButtons.forEach((b) => b.addEventListener("click", async (e) => { e.preventDefault(); const { data: { session } } = await supabase.auth.getSession(); if (session) await supabase.auth.signOut(); else openAuth("login"); });
   authClose?.addEventListener("click", closeAuth); authModal?.addEventListener("click", (e) => { if (e.target === authModal) closeAuth(); }); authSwitch?.addEventListener("click", () => openAuth(authMode === "login" ? "signup" : "login"));
   authForm?.addEventListener("submit", async (e) => { e.preventDefault(); const email = authEmail.value.trim(), password = authPassword.value; authSubmit.disabled = true; try { if (authMode === "login") { const { error } = await supabase.auth.signInWithPassword({ email, password }); if (error) throw error; closeAuth(); } else { const { data, error } = await supabase.auth.signUp({ email, password }); if (error) throw error; if (data.session) closeAuth(); else setAuthMessage("Konto utworzone. Sprawdź e-mail, aby potwierdzić adres.", true); } } catch (err) { setAuthMessage(err.message || "Wystąpił błąd."); } finally { authSubmit.disabled = false; authSubmit.textContent = authMode === "login" ? "Zaloguj się" : "Utwórz konto"; } });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeViewer(); closeAuth(); } });
