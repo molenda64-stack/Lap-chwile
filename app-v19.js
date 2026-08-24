@@ -3,6 +3,7 @@
   const SUPABASE_KEY = "sb_publishable_djOS3r_IKhZ42gAXR5svKA_VAhqTrmt";
   const BUCKET = "photos";
   const boot = async () => {
+    window.__lapChwileBooted = true;
     if (!window.supabase?.createClient) { setTimeout(boot, 50); return; }
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage,storageKey:"lap-chwile-auth-v10"} });
     const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
