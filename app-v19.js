@@ -19,6 +19,8 @@
   };
 
   const isHeif = value => /\.(heic|heif)$/i.test(value?.name || value || "") || /image\/(heic|heif)/i.test(value?.type || "");
+  const mimeExtension = type => ({"image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif","image/bmp":"bmp","image/avif":"avif"}[type] || "");
+  const safeExtension = file => mimeExtension(file.type) || ((file.name || "").match(/\.([a-z0-9]+)$/i)?.[1] || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
 
   async function boot() {
     if (!window.supabase?.createClient) { setTimeout(boot, 50); return; }
@@ -64,7 +66,9 @@
       if (userError || !user || !confirm("Usunąć tę chwilę? Tej operacji nie można cofnąć.")) return;
       const { error } = await client.from("photos").delete().eq("id", id).eq("user_id", user.id);
       if (error) return setStatus(`Nie udało się usunąć zdjęcia: ${error.message}`);
-      await client.storage.from(BUCKET).remove([path]); card?.remove(); setCount(gallery?.querySelectorAll('[data-saved-photo="true"]').length || 0);
+      const storageDelete = await client.storage.from(BUCKET).remove([path]);
+      if (storageDelete.error) setStatus(`Zdjęcie usunięte z galerii, ale nie udało się usunąć pliku ze Storage: ${storageDelete.error.message}`);
+      card?.remove(); setCount(gallery?.querySelectorAll('[data-saved-photo="true"]').length || 0);
     }
 
     function addCard(url, id, path) {
@@ -107,10 +111,16 @@
       if (original.size > 20 * 1024 * 1024) throw new Error(`${original.name}: maks. 20 MB przed konwersją.`);
       const file = isHeif(original) ? new File([await toJpeg(original)], `${(original.name || "zdjecie").replace(/\.(heic|heif)$/i, "")}.jpg`, { type: "image/jpeg" }) : original;
       if (file.size > 10 * 1024 * 1024) throw new Error(`${original.name}: po konwersji zdjęcie przekracza 10 MB.`);
-      const hash = await hashFile(file), path = `${user.id}/${hash}.jpg`;
-      const existing = await client.from("photos").select("id").eq("user_id", user.id).eq("image_path", path).limit(1); if (existing.error) throw existing.error; if (existing.data?.length) return false;
-      const up = await client.storage.from(BUCKET).upload(path, file, { upsert: false, cacheControl: "3600", contentType: "image/jpeg" }); if (up.error && !/already exists|duplicate/i.test(up.error.message || "")) throw up.error;
-      const db = await client.from("photos").upsert({ user_id: user.id, image_path: path, caption: "" }, { onConflict: "user_id,image_path", ignoreDuplicates: true }); if (db.error) throw db.error;
+      const hash = await hashFile(file);
+      const extension = isHeif(original) ? "jpg" : safeExtension(file);
+      const path = `${user.id}/${hash}.${extension}`;
+      const existing = await client.from("photos").select("id").eq("user_id", user.id).eq("image_path", path).limit(1);
+      if (existing.error) throw existing.error;
+      if (existing.data?.length) return false;
+      const up = await client.storage.from(BUCKET).upload(path, file, { upsert: false, cacheControl: "3600", contentType: file.type || "application/octet-stream" });
+      if (up.error && !/already exists|duplicate/i.test(up.error.message || "")) throw up.error;
+      const db = await client.from("photos").upsert({ user_id: user.id, image_path: path, caption: "" }, { onConflict: "user_id,image_path", ignoreDuplicates: true });
+      if (db.error) throw db.error;
       return !up.error;
     }
 
