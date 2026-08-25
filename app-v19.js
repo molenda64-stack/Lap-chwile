@@ -2,6 +2,7 @@
   const SUPABASE_URL = "https://jcmwjmaywkmnjrciziix.supabase.co";
   const SUPABASE_KEY = "sb_publishable_djOS3r_IKhZ42gAXR5svKA_VAhqTrmt";
   const BUCKET = "photos";
+  const SIGNED_URL_TTL = 3600;
   let heicReady = null;
 
   const loadHeic = () => {
@@ -43,6 +44,12 @@
     const viewerImage = viewer.querySelector(".viewer-image");
     viewer.addEventListener("click", e => { if (e.target === viewer || e.target.classList.contains("viewer-close")) { viewer.classList.remove("open"); viewerImage.removeAttribute("src"); document.body.style.overflow = ""; } });
 
+    async function getViewUrl(path) {
+      const { data, error } = await client.storage.from(BUCKET).createSignedUrl(path, SIGNED_URL_TTL);
+      if (error || !data?.signedUrl) throw error || new Error("Nie udało się uzyskać bezpiecznego adresu zdjęcia.");
+      return data.signedUrl;
+    }
+
     async function toJpeg(fileOrBlob) {
       if (!isHeif(fileOrBlob)) return fileOrBlob;
       const convert = await loadHeic();
@@ -69,8 +76,8 @@
     }
 
     async function addHeifCard(photo) {
-      const publicUrl = client.storage.from(BUCKET).getPublicUrl(photo.image_path).data.publicUrl;
-      const response = await fetch(publicUrl, { cache: "no-store" });
+      const signedUrl = await getViewUrl(photo.image_path);
+      const response = await fetch(signedUrl, { cache: "no-store" });
       if (!response.ok) throw new Error(`Storage HTTP ${response.status}`);
       const jpeg = await toJpeg(await response.blob());
       const url = URL.createObjectURL(jpeg); addCard(url, photo.id, photo.image_path);
@@ -85,7 +92,7 @@
         clearGallery(); let visible = 0;
         for (const photo of data || []) {
           if (!photo.image_path) continue;
-          try { if (isHeif(photo.image_path)) { setStatus("Przygotowywanie zdjęć HEIF…"); await addHeifCard(photo); } else { const { data: publicData } = client.storage.from(BUCKET).getPublicUrl(photo.image_path); addCard(publicData.publicUrl, photo.id, photo.image_path); } visible++; }
+          try { if (isHeif(photo.image_path)) { setStatus("Przygotowywanie zdjęć HEIF…"); await addHeifCard(photo); } else { const signedUrl = await getViewUrl(photo.image_path); addCard(signedUrl, photo.id, photo.image_path); } visible++; }
           catch (e) { console.error("display photo", photo.image_path, e); }
         }
         setCount(visible); setStatus("");
