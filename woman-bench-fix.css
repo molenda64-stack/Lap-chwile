@@ -1,13 +1,11 @@
-/* Łap Chwilę — stabilne tło produkcyjne */
+/* Łap Chwilę — właściwe zdjęcie tła: kobieta na ławce nad jeziorem */
 html,body{background:#d8d8d5!important}
-.banner{position:relative!important;z-index:1!important;min-height:390px!important;background-image:url('./woman-bg.jpg')!important;background-size:cover!important;background-position:62% center!important;background-repeat:no-repeat!important;overflow:hidden!important}
-.banner::before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.12),rgba(0,0,0,.32));z-index:0;pointer-events:none}
+.banner{position:relative!important;z-index:1!important;min-height:390px!important;background-image:url("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCg...REPLACEME")!important;background-size:cover!important;background-position:center center!important;background-repeat:no-repeat!important;overflow:hidden!important}
+.banner::before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.10),rgba(0,0,0,.28));z-index:0;pointer-events:none}
 .banner-content{position:relative!important;z-index:1!important;text-shadow:0 3px 22px rgba(0,0,0,.8)!important}
 .hero{background:rgba(255,255,255,.72)!important;backdrop-filter:blur(2px)!important}
 .profile,.gallery,footer{position:relative!important;z-index:2!important}
 footer{background:rgba(255,255,255,.86)!important}
-
-/* Na telefonie przesuwamy zdjęcie lekko w lewo, aby ukryć tekst zapisany w samym pliku tła. */
 @media(max-width:600px){
-  .banner{background-position:68% center!important}
+  .banner{min-height:300px!important;background-position:center 48%!important}
 }
