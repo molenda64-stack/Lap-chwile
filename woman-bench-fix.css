@@ -1,0 +1,9 @@
+/* Łap Chwilę — mocno widoczne tło z kobietą na ławce */
+body{background:transparent!important}
+body:before{content:""!important;position:fixed!important;inset:0!important;z-index:0!important;background-position:center center!important;background-size:cover!important;background-repeat:no-repeat!important;background-attachment:fixed!important;opacity:1!important;filter:contrast(1.35) brightness(.82) saturate(1.12)!important;pointer-events:none!important}
+.banner{background:transparent!important;position:relative!important;z-index:1!important;min-height:390px!important}
+.banner-content{text-shadow:0 3px 22px rgba(0,0,0,.7)!important}
+.hero{background:rgba(255,255,255,.52)!important;backdrop-filter:blur(2px)!important}
+.profile{position:relative;z-index:2!important}
+.gallery{position:relative;z-index:2!important}
+footer{background:rgba(255,255,255,.82)!important}
