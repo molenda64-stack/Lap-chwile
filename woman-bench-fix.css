@@ -1,9 +1,8 @@
-/* Łap Chwilę — widoczne tło z kobietą na ławce */
-body{background:transparent!important}
-body:before{content:""!important;position:fixed!important;inset:0!important;z-index:0!important;background-position:center center!important;background-size:cover!important;background-repeat:no-repeat!important;background-attachment:fixed!important;opacity:1!important;filter:contrast(1.55) brightness(.72) saturate(1.22)!important;background-blend-mode:multiply!important;pointer-events:none!important}
-.banner{background:transparent!important;position:relative!important;z-index:1!important;min-height:390px!important}
-.banner-content{text-shadow:0 3px 22px rgba(0,0,0,.82)!important}
-.hero{background:rgba(255,255,255,.52)!important;backdrop-filter:blur(2px)!important}
-.profile{position:relative;z-index:2!important}
-.gallery{position:relative;z-index:2!important}
-footer{background:rgba(255,255,255,.82)!important}
+/* Łap Chwilę — FINAL: kobieta na ławce jako rzeczywiste tło */
+html,body{background:#d8d8d5!important}
+body:before{content:""!important;position:fixed!important;inset:0!important;z-index:0!important;pointer-events:none!important;background-image:url("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAEnAUADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAf/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAH/2gAMAwEAAgADAAAAFP/EABQQAQAAAAAAAAAAAAAAAAAAABD/2gAIAQEAAT8Af//Z")!important;background-position:center center!important;background-size:cover!important;background-repeat:no-repeat!important;opacity:1!important;filter:none!important}
+.banner{background:rgba(0,0,0,.08)!important;position:relative!important;z-index:1!important;min-height:390px!important}
+.banner-content{text-shadow:0 3px 22px rgba(0,0,0,.8)!important}
+.hero{background:rgba(255,255,255,.72)!important;backdrop-filter:blur(2px)!important}
+.profile,.gallery,footer{position:relative;z-index:2!important}
+footer{background:rgba(255,255,255,.86)!important}
