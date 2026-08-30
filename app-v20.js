@@ -120,7 +120,10 @@
       const up = await client.storage.from(BUCKET).upload(path, file, { upsert: false, cacheControl: "3600", contentType: file.type || "application/octet-stream" });
       if (up.error && !/already exists|duplicate/i.test(up.error.message || "")) throw up.error;
       const db = await client.from("photos").upsert({ user_id: user.id, image_path: path, caption: "" }, { onConflict: "user_id,image_path", ignoreDuplicates: true });
-      if (db.error) throw db.error;
+      if (db.error) {
+        if (!up.error) await client.storage.from(BUCKET).remove([path]);
+        throw db.error;
+      }
       return !up.error;
     }
 
