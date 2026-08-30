@@ -43,7 +43,8 @@
       emptyDetail.style.display = inAlbum.length ? "none" : "block";
       box.querySelector(".album-add-photos").onclick = () => {
         const picker = document.createElement("div"); picker.className = "album-picker";
-        picker.innerHTML = `<div class="album-picker-box"><button class="album-modal-close" type="button">×</button><h3>Dodaj zdjęcia do „${album.name.replace(/"/g, "&quot;")}"</h3><p>Wybierz zapisane zdjęcia. Niczego nie przesyłasz ponownie.</p><div class="album-picker-grid"></div><button class="album-picker-save" type="button">Zapisz wybrane</button><div class="album-msg"></div></div>`;
+        picker.innerHTML = `<div class="album-picker-box"><button class="album-modal-close" type="button">×</button><h3></h3><p>Wybierz zapisane zdjęcia. Niczego nie przesyłasz ponownie.</p><div class="album-picker-grid"></div><button class="album-picker-save" type="button">Zapisz wybrane</button><div class="album-msg"></div></div>`;
+        picker.querySelector("h3").textContent = `Dodaj zdjęcia do „${album.name}”`;
         box.append(picker);
         const pg = picker.querySelector(".album-picker-grid"), selected = new Set();
         for (const photo of outside) { try { const item = document.createElement("button"); item.type = "button"; item.className = "picker-photo"; const img = document.createElement("img"); img.src = await signed(photo.image_path); img.alt = "Zdjęcie"; item.append(img); item.onclick = () => { if (selected.has(photo.id)) { selected.delete(photo.id); item.classList.remove("selected"); } else { selected.add(photo.id); item.classList.add("selected"); } }; pg.append(item); } catch (e) { console.error(e); } }
