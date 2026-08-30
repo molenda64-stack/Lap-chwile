@@ -32,7 +32,7 @@
       apply();
     }));
 
-    new MutationObserver(apply).observe(gallery, { childList: true, subtree: true, characterData: true });
+    new MutationObserver(apply).observe(gallery, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['style','hidden'] });
     apply();
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
