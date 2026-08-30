@@ -15,7 +15,7 @@
     modal.innerHTML = `<div class="album-modal-box"><button class="album-modal-close" type="button">×</button><h3>Nowy album</h3><p>Wybierz krótką nazwę dla swojej kolekcji.</p><form><label>Nazwa albumu<input id="albumName" maxlength="80" required placeholder="np. Wakacje 2026"></label><label>Opis <span>(opcjonalnie)</span></label><textarea id="albumDescription" maxlength="300" placeholder="Kilka słów o tej chwili..."></textarea><button type="submit">Utwórz album</button></form><div class="album-msg" aria-live="polite"></div></div>`;
     document.body.append(modal);
     const open = () => { modal.classList.add("open"); document.body.style.overflow = "hidden"; modal.querySelector("#albumName")?.focus(); };
-    const close = () => { modal.classList.remove("open"); document.body.style.overflow = ""; modal.querySelector("form")?.reset(); modal.querySelector(".album-msg").textContent = ""; };
+    const close = () => { modal.classList.remove("open"); document.body.style.overflow = ""; modal.querySelector("form")?.reset(); modal.querySelector(".album-msg").textContent = ""; };\n    document.addEventListener("keydown", e => { if (e.key === "Escape" && modal.classList.contains("open")) close(); });
     const openAlbumCreator = async () => { const { data: { session } } = await client.auth.getSession(); if (!session) return document.querySelector(".login")?.click(); open(); };
     panel.querySelector("#newAlbumBtn").onclick = openAlbumCreator;
     document.querySelector("#quickAddAlbum")?.addEventListener("click", openAlbumCreator);
