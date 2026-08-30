@@ -64,7 +64,18 @@
         const card = document.createElement("article"); card.className = "album-card"; card.innerHTML = `<div class="album-icon">▦</div><div class="album-copy"><h3></h3><p></p><small></small></div><button class="album-delete" title="Usuń album" type="button">🗑</button>`;
         card.querySelector("h3").textContent = album.name; card.querySelector("p").textContent = album.description || "Bez opisu"; card.querySelector("small").textContent = new Date(album.created_at).toLocaleDateString("pl-PL");
         card.onclick = e => { if (e.target.closest(".album-delete")) return; currentUser().then(u => u && openAlbum(album, u)); };
-        card.querySelector(".album-delete").onclick = async e => { e.stopPropagation(); if (!confirm(`Usunąć album „${album.name}”? Zdjęcia pozostaną w galerii.`)) return; const result = await client.from("albums").delete().eq("id", album.id).eq("user_id", user.id); if (result.error) alert("Nie udało się usunąć albumu."); else loadAlbums(); };
+        card.querySelector(".album-delete").onclick = async e => {
+          e.stopPropagation();
+          if (!confirm(`Usunąć album „${album.name}”? Zdjęcia pozostaną w galerii.`)) return;
+          const unlink = await client.from("photos").update({ album_id: null }).eq("user_id", user.id).eq("album_id", album.id);
+          if (unlink.error) return alert("Nie udało się odłączyć zdjęć od albumu.");
+          const result = await client.from("albums").delete().eq("id", album.id).eq("user_id", user.id);
+          if (result.error) {
+            alert("Nie udało się usunąć albumu.");
+            return;
+          }
+          loadAlbums();
+        };
         grid.append(card);
       }
     }
