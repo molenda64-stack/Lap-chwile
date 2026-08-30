@@ -16,7 +16,7 @@
     document.body.append(modal);
     const open = () => { modal.classList.add("open"); document.body.style.overflow = "hidden"; modal.querySelector("#albumName")?.focus(); };
     const close = () => { modal.classList.remove("open"); document.body.style.overflow = ""; modal.querySelector("form")?.reset(); modal.querySelector(".album-msg").textContent = ""; };
-    panel.querySelector("#newAlbumBtn").onclick = async () => { const { data: { session } } = await client.auth.getSession(); if (!session) return document.querySelector(".login")?.click(); open(); };
+    const openAlbumCreator = async () => { const { data: { session } } = await client.auth.getSession(); if (!session) return document.querySelector(".login")?.click(); open(); };\n    panel.querySelector("#newAlbumBtn").onclick = openAlbumCreator;\n    document.querySelector("#quickAddAlbum")?.addEventListener("click", openAlbumCreator);
     modal.querySelector(".album-modal-close").onclick = close; modal.addEventListener("click", e => { if (e.target === modal) close(); });
     const msg = modal.querySelector(".album-msg");
 
