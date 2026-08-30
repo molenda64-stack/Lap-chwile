@@ -29,7 +29,7 @@
       const photosRes = await client.from("photos").select("id,image_path,caption,created_at,album_id").eq("user_id", user.id).order("created_at", { ascending: false });
       if (photosRes.error) return alert("Nie udało się wczytać zdjęć albumu.");
       const photos = photosRes.data || [];
-      const inAlbum = photos.filter(p => p.album_id === album.id), outside = photos.filter(p => p.album_id !== album.id);
+      const inAlbum = photos.filter(p => p.album_id === album.id), outside = photos.filter(p => !p.album_id);
       const box = document.createElement("div"); box.className = "album-detail-modal";
       box.innerHTML = `<div class="album-detail-box"><button class="album-modal-close" type="button">×</button><h3></h3><p class="album-detail-sub"></p><div class="album-detail-actions"><button class="album-add-photos" type="button">＋ Dodaj istniejące zdjęcia</button></div><div class="album-detail-grid"></div><div class="album-detail-empty">Album nie ma jeszcze zdjęć.</div></div>`;
       document.body.append(box); document.body.style.overflow = "hidden";
@@ -48,7 +48,7 @@
         box.append(picker);
         const pg = picker.querySelector(".album-picker-grid"), selected = new Set();
         for (const photo of outside) { try { const item = document.createElement("button"); item.type = "button"; item.className = "picker-photo"; const img = document.createElement("img"); img.src = await signed(photo.image_path); img.alt = "Zdjęcie"; item.append(img); item.onclick = () => { if (selected.has(photo.id)) { selected.delete(photo.id); item.classList.remove("selected"); } else { selected.add(photo.id); item.classList.add("selected"); } }; pg.append(item); } catch (e) { console.error(e); } }
-        if (!outside.length) pg.innerHTML = `<p class="picker-none">Wszystkie Twoje zdjęcia są już w tym albumie.</p>`;
+        if (!outside.length) pg.innerHTML = `<p class="picker-none">Nie masz obecnie zdjęć poza albumami do dodania.</p>`;
         picker.querySelector(".album-modal-close").onclick = () => picker.remove();
         picker.querySelector(".album-picker-save").onclick = async () => { if (!selected.size) return picker.querySelector(".album-msg").textContent = "Wybierz przynajmniej jedno zdjęcie."; const { error } = await client.from("photos").update({ album_id: album.id }).in("id", [...selected]).eq("user_id", user.id); if (error) picker.querySelector(".album-msg").textContent = "Nie udało się zapisać wyboru."; else { picker.remove(); closeDetail(); openAlbum(album, user); } };
       };
