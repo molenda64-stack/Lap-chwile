@@ -33,7 +33,7 @@
       const inAlbum = photos.filter(p => p.album_id === album.id), outside = photos.filter(p => !p.album_id);
       const box = document.createElement("div"); box.className = "album-detail-modal";
       box.innerHTML = `<div class="album-detail-box"><button class="album-modal-close" type="button">×</button><h3></h3><p class="album-detail-sub"></p><div class="album-detail-actions"><button class="album-add-photos" type="button">＋ Dodaj istniejące zdjęcia</button></div><div class="album-detail-grid"></div><div class="album-detail-empty">Album nie ma jeszcze zdjęć.</div></div>`;
-      document.body.append(box); document.body.style.overflow = "hidden";
+      document.body.append(box); box.classList.add("open"); document.body.style.overflow = "hidden";
       box.querySelector("h3").textContent = album.name;
       const photoWord = inAlbum.length === 1 ? "zdjęcie" : (inAlbum.length % 10 >= 2 && inAlbum.length % 10 <= 4 && (inAlbum.length % 100 < 10 || inAlbum.length % 100 >= 20) ? "zdjęcia" : "zdjęć");
       box.querySelector(".album-detail-sub").textContent = `${inAlbum.length} ${photoWord}`;
