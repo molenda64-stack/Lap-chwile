@@ -27,7 +27,7 @@
     window.__lapChwileBooted = true;
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: window.localStorage, storageKey: "lap-chwile-auth-v10" } });
     const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-    const loginButtons = $$('button.login,button[class*="login"]'), addButtons = $$('button.add,button[class*="add"]');
+    const loginButtons = $('button.login,button[class*="login"]'), addButtons = $('button.add:not(.add-album)');
     const gallery = $(".gallery"), count = $("#photoCount"), status = $("#uploadStatus");
     const modal = $("#authModal"), form = $("#authForm"), email = $("#authEmail"), password = $("#authPassword");
     const submit = $("#authSubmit"), switcher = $("#authSwitch"), close = $("#authClose");
