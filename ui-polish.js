@@ -12,7 +12,7 @@
       if (visibleCards.length) empty.style.display = 'none'; else empty.style.display = '';
     };
     emptyAdd?.addEventListener('click', () => add?.click());
-    new MutationObserver(sync).observe(gallery, {childList:true,subtree:true});
+    new MutationObserver(sync).observe(gallery, {childList:true,subtree:true,attributes:true,attributeFilter:['style','hidden']});
     sync();
   };
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', boot) : boot();
