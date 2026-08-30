@@ -13,7 +13,7 @@
         const text = card.textContent.toLowerCase();
         const matchSearch = !q || text.includes(q);
         const matchMode = mode === 'all' || (mode === 'favorites' && favorite) || (mode === 'recent');
-        card.style.display = matchSearch && matchMode ? '' : 'none';
+        card.hidden = !(matchSearch && matchMode);
       });
     };
     search.addEventListener('input', apply);
@@ -23,7 +23,8 @@
       mode = btn.dataset.filter;
       apply();
     }));
-    const observer = new MutationObserver(apply);
+    const originalApply = apply;
+    const observer = new MutationObserver(originalApply);
     observer.observe(gallery, { childList: true, subtree: true });
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
