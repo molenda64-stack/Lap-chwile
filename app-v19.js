@@ -71,12 +71,12 @@
       card?.remove(); setCount(gallery?.querySelectorAll('[data-saved-photo="true"]').length || 0);
     }
 
-    function addCard(url, id, path) {
+    function addCard(url, id, path, photo = {}) {
       if (!gallery || gallery.querySelector(`[data-photo-id="${CSS.escape(String(id))}"]`)) return;
       const card = document.createElement("article"); card.className = "photo-card"; card.dataset.savedPhoto = "true"; card.dataset.photoId = id;
       const img = document.createElement("img"); img.src = url; img.alt = "Moja chwila"; img.loading = "lazy"; img.onerror = () => card.remove(); img.onclick = () => { viewerImage.src = url; viewer.classList.add("open"); document.body.style.overflow = "hidden"; };
       const del = document.createElement("button"); del.className = "delete-photo"; del.type = "button"; del.title = "Usuń zdjęcie"; del.textContent = "🗑"; del.onclick = () => deletePhoto(id, path, card);
-      card.append(img, del); gallery.append(card);
+      const fav = document.createElement("button"); fav.className = "favorite-photo"; fav.type = "button"; fav.title = photo.is_favorite ? "Usuń z ulubionych" : "Dodaj do ulubionych"; fav.textContent = photo.is_favorite ? "♥" : "♡"; fav.onclick = async () => { const { data:{ user } } = await client.auth.getUser(); if (!user) return; const next = !photo.is_favorite; const { error } = await client.from("photos").update({ is_favorite: next }).eq("id", id).eq("user_id", user.id); if (!error) { photo.is_favorite = next; fav.textContent = next ? "♥" : "♡"; fav.title = next ? "Usuń z ulubionych" : "Dodaj do ulubionych"; } }; const date = document.createElement("div"); date.className = "photo-memory-date"; date.textContent = photo.memory_date || (photo.created_at ? new Date(photo.created_at).toLocaleDateString("pl-PL") : ""); card.append(img, fav, del, date); gallery.append(card);
     }
 
     async function addHeifCard(photo) {
@@ -84,7 +84,7 @@
       const response = await fetch(signedUrl, { cache: "no-store" });
       if (!response.ok) throw new Error(`Storage HTTP ${response.status}`);
       const jpeg = await toJpeg(await response.blob());
-      const url = URL.createObjectURL(jpeg); addCard(url, photo.id, photo.image_path);
+      const url = URL.createObjectURL(jpeg); addCard(url, photo.id, photo.image_path, photo);
     }
 
     async function loadPhotos() {
@@ -92,11 +92,11 @@
       try {
         const { data: { user }, error: userError } = await client.auth.getUser(); if (userError) throw userError;
         if (!user) { clearGallery(); setCount(0); return; }
-        const { data, error } = await client.from("photos").select("id,image_path,caption,created_at").eq("user_id", user.id).order("created_at", { ascending: false }); if (error) throw error;
+        const { data, error } = await client.from("photos").select("id,image_path,caption,created_at,is_favorite,memory_date").eq("user_id", user.id).order("created_at", { ascending: false }); if (error) throw error;
         clearGallery(); let visible = 0;
         for (const photo of data || []) {
           if (!photo.image_path) continue;
-          try { if (isHeif(photo.image_path)) { setStatus("Przygotowywanie zdjęć HEIF…"); await addHeifCard(photo); } else { const signedUrl = await getViewUrl(photo.image_path); addCard(signedUrl, photo.id, photo.image_path); } visible++; }
+          try { if (isHeif(photo.image_path)) { setStatus("Przygotowywanie zdjęć HEIF…"); await addHeifCard(photo); } else { const signedUrl = await getViewUrl(photo.image_path); addCard(signedUrl, photo.id, photo.image_path, photo); } visible++; }
           catch (e) { console.error("display photo", photo.image_path, e); }
         }
         setCount(visible); setStatus("");
