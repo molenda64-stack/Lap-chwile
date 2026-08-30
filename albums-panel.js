@@ -40,6 +40,8 @@
       const grid = box.querySelector(".album-detail-grid"), emptyDetail = box.querySelector(".album-detail-empty");
       const closeDetail = () => { box.remove(); document.body.style.overflow = ""; };
       box.querySelector(".album-modal-close").onclick = closeDetail; box.addEventListener("click", e => { if (e.target === box) closeDetail(); });
+      const onDetailKey = e => { if (e.key === "Escape") { closeDetail(); document.removeEventListener("keydown", onDetailKey); } };
+      document.addEventListener("keydown", onDetailKey);
       for (const photo of inAlbum) { try { const card = document.createElement("div"); card.className = "album-photo"; const img = document.createElement("img"); img.src = await signed(photo.image_path); img.alt = "Zdjęcie w albumie"; card.append(img); const remove = document.createElement("button"); remove.type = "button"; remove.textContent = "Usuń z albumu"; remove.onclick = async () => { const r = await client.from("photos").update({ album_id: null }).eq("id", photo.id).eq("user_id", user.id); if (r.error) alert("Nie udało się usunąć zdjęcia z albumu."); else { closeDetail(); openAlbum(album, user); } }; card.append(remove); grid.append(card); } catch (e) { console.error(e); } }
       emptyDetail.style.display = inAlbum.length ? "none" : "block";
       box.querySelector(".album-add-photos").onclick = () => {
@@ -50,7 +52,11 @@
         const pg = picker.querySelector(".album-picker-grid"), selected = new Set();
         for (const photo of outside) { try { const item = document.createElement("button"); item.type = "button"; item.className = "picker-photo"; const img = document.createElement("img"); img.src = await signed(photo.image_path); img.alt = "Zdjęcie"; item.append(img); item.onclick = () => { if (selected.has(photo.id)) { selected.delete(photo.id); item.classList.remove("selected"); } else { selected.add(photo.id); item.classList.add("selected"); } }; pg.append(item); } catch (e) { console.error(e); } }
         if (!outside.length) pg.innerHTML = `<p class="picker-none">Nie masz obecnie zdjęć poza albumami do dodania.</p>`;
-        picker.querySelector(".album-modal-close").onclick = () => picker.remove();
+        const closePicker = () => picker.remove();
+        picker.querySelector(".album-modal-close").onclick = closePicker;
+        picker.addEventListener("click", e => { if (e.target === picker) closePicker(); });
+        const onPickerKey = e => { if (e.key === "Escape") { closePicker(); document.removeEventListener("keydown", onPickerKey); } };
+        document.addEventListener("keydown", onPickerKey);
         picker.querySelector(".album-picker-save").onclick = async () => { if (!selected.size) return picker.querySelector(".album-msg").textContent = "Wybierz przynajmniej jedno zdjęcie."; const { error } = await client.from("photos").update({ album_id: album.id }).in("id", [...selected]).eq("user_id", user.id); if (error) picker.querySelector(".album-msg").textContent = "Nie udało się zapisać wyboru."; else { picker.remove(); closeDetail(); openAlbum(album, user); } };
       };
     }
