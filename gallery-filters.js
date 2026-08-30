@@ -32,7 +32,8 @@
       apply();
     }));
 
-    new MutationObserver(apply).observe(gallery, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['style','hidden'] });
+    new MutationObserver(apply).observe(gallery, { childList: true });
+    gallery.addEventListener('lapchwile:photo-updated', apply);
     apply();
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
