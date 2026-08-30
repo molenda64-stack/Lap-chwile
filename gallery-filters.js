@@ -3,7 +3,8 @@
     const search = document.querySelector('#photoSearch');
     const buttons = [...document.querySelectorAll('.gallery-filters button')];
     const gallery = document.querySelector('.gallery');
-    if (!search || !gallery || gallery.dataset.filtersReady) return setTimeout(boot, 100);
+    if (gallery?.dataset.filtersReady) return;
+    if (!search || !gallery) return setTimeout(boot, 100);
     gallery.dataset.filtersReady = '1';
     let mode = 'all';
 
